@@ -13,6 +13,9 @@ Command: ls -lhS
 Description: find python files modified in the last week
 Command: find . -name "*.py" -mtime -7
 
+Description: show disk usage by directory, sorted
+Command: du -sh */ | sort -rh
+
 Description: {description}
 Command:"""
 
