@@ -26,5 +26,6 @@ def suggest(description):
         prompt=_suggest_prompt(description),
         max_tokens=150,
         temperature=0,
+        stop=["\n\n", "\nDescription:"],
     )
     return response.choices[0].text.strip()
