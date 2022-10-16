@@ -35,6 +35,9 @@ def _explain_prompt(command):
         "Command: du -sh */ | sort -rh\n"
         "Explanation: Shows disk usage for each subdirectory in human-readable "
         "format, sorted largest to smallest.\n\n"
+        "Command: awk '{{print $1, $3}}' data.txt\n"
+        "Explanation: Prints the 1st and 3rd columns from each line of "
+        "data.txt.\n\n"
         f"Command: {command}\n"
         "Explanation:"
     )
