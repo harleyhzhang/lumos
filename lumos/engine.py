@@ -16,8 +16,28 @@ Command: find . -name "*.py" -mtime -7
 Description: show disk usage by directory, sorted
 Command: du -sh */ | sort -rh
 
+Description: kill processes matching "node"
+Command: pkill -f node
+
+Description: download a file with curl
+Command: curl -O https://example.com/file.tar.gz
+
 Description: {description}
 Command:"""
+
+
+def _explain_prompt(command):
+    return (
+        "Explain what this shell command does in plain English.\n\n"
+        'Command: find . -name "*.py" -mtime -7\n'
+        "Explanation: Finds all Python files in the current directory tree "
+        "modified within the last 7 days.\n\n"
+        "Command: du -sh */ | sort -rh\n"
+        "Explanation: Shows disk usage for each subdirectory in human-readable "
+        "format, sorted largest to smallest.\n\n"
+        f"Command: {command}\n"
+        "Explanation:"
+    )
 
 
 def suggest(description):
@@ -27,5 +47,16 @@ def suggest(description):
         max_tokens=150,
         temperature=0,
         stop=["\n\n", "\nDescription:"],
+    )
+    return response.choices[0].text.strip()
+
+
+def explain(command):
+    response = openai.Completion.create(
+        model="davinci-002",
+        prompt=_explain_prompt(command),
+        max_tokens=200,
+        temperature=0,
+        stop=["\n\n", "\nCommand:"],
     )
     return response.choices[0].text.strip()
