@@ -9,7 +9,8 @@ console = Console()
 @click.command()
 @click.argument("description")
 def cli(description):
-    command = suggest(description)
+    with console.status("thinking...", spinner="dots"):
+        command = suggest(description)
     text = Text()
     text.append("$ ", style="green bold")
     text.append(command)
