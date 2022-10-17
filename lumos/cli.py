@@ -16,3 +16,6 @@ def cli(description):
     console.print(
         Panel(text, title="lumos", title_align="left", border_style="blue", padding=(1, 2))
     )
+    should_run = console.input(
+        "\n  run this command? [dim]\\[y/n][/dim] "
+    ).strip().lower() == "y"
