@@ -11,6 +11,7 @@ from lumos.history import save_entry, get_recent
 
 console = Console()
 
+
 def _display_command(command):
     text = Text()
     text.append("$ ", style="green bold")
@@ -18,6 +19,36 @@ def _display_command(command):
     console.print(
         Panel(text, title="lumos", title_align="left", border_style="blue", padding=(1, 2))
     )
+
+
+def _suggest(description, run):
+    with console.status("thinking...", spinner="dots"):
+        command = suggest(description)
+    _display_command(command)
+    should_run = run or console.input(
+        "\n  run this command? [dim]\\[y/n][/dim] "
+    ).strip().lower() == "y"
+    if should_run:
+        save_entry(description, command, executed=True)
+        console.print()
+        result = subprocess.run(command, shell=True)
+        sys.exit(result.returncode)
+    else:
+        save_entry(description, command, executed=False)
+
+
+def _explain(command):
+    with console.status("thinking...", spinner="dots"):
+        explanation = explain(command)
+    text = Text()
+    text.append("$ ", style="green bold")
+    text.append(command)
+    text.append("\n\n")
+    text.append(explanation, style="dim")
+    console.print(
+        Panel(text, title="lumos", title_align="left", border_style="blue", padding=(1, 2))
+    )
+
 
 def _history(limit):
     entries = get_recent(limit)
@@ -28,46 +59,29 @@ def _history(limit):
     table.add_column("time", style="dim")
     table.add_column("description")
     table.add_column("command", style="green")
+    table.add_column("ran", justify="center")
     for entry in entries:
         ts = entry["timestamp"][:16].replace("T", " ")
-        table.add_row(ts, entry["description"], entry["command"])
+        ran = "y" if entry.get("executed") else ""
+        table.add_row(ts, entry["description"], entry["command"], ran)
     console.print(table)
+
 
 @click.command()
 @click.argument("input_text", required=False)
 @click.option("-e", "--explain", "explain_mode", is_flag=True)
+@click.option("-r", "--run", is_flag=True)
 @click.option("-H", "--history", "show_history", is_flag=True)
 @click.option("-n", "--limit", default=20)
-def cli(input_text, explain_mode, show_history, limit):
+def cli(input_text, explain_mode, run, show_history, limit):
     if show_history:
         _history(limit)
     elif explain_mode:
         if not input_text:
             console.print("  provide a command to explain", style="red")
             raise SystemExit(1)
-        with console.status("thinking...", spinner="dots"):
-            explanation = explain(input_text)
-        text = Text()
-        text.append("$ ", style="green bold")
-        text.append(input_text)
-        text.append("\n\n")
-        text.append(explanation, style="dim")
-        console.print(
-            Panel(text, title="lumos", title_align="left", border_style="blue", padding=(1, 2))
-        )
+        _explain(input_text)
     elif input_text:
-        with console.status("thinking...", spinner="dots"):
-            command = suggest(input_text)
-        _display_command(command)
-        should_run = console.input(
-            "\n  run this command? [dim]\\[y/n][/dim] "
-        ).strip().lower() == "y"
-        if should_run:
-            save_entry(input_text, command)
-            console.print()
-            result = subprocess.run(command, shell=True)
-            sys.exit(result.returncode)
-        else:
-            save_entry(input_text, command)
+        _suggest(input_text, run)
     else:
         click.echo(click.get_current_context().get_help())
