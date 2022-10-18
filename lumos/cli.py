@@ -6,6 +6,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 from lumos.engine import suggest, explain
+from lumos.history import save_entry
 
 console = Console()
 
@@ -43,8 +44,11 @@ def cli(input_text, explain_mode):
             "\n  run this command? [dim]\\[y/n][/dim] "
         ).strip().lower() == "y"
         if should_run:
+            save_entry(input_text, command)
             console.print()
             result = subprocess.run(command, shell=True)
             sys.exit(result.returncode)
+        else:
+            save_entry(input_text, command)
     else:
         click.echo(click.get_current_context().get_help())
