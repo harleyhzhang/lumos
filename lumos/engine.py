@@ -1,7 +1,13 @@
-import os
 import openai
+from dotenv import load_dotenv
+from functools import lru_cache
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+load_dotenv()
+
+
+@lru_cache
+def _client():
+    return openai.OpenAI()
 
 
 def _suggest_prompt(description):
@@ -44,7 +50,7 @@ def _explain_prompt(command):
 
 
 def suggest(description):
-    response = openai.Completion.create(
+    response = _client().completions.create(
         model="davinci-002",
         prompt=_suggest_prompt(description),
         max_tokens=150,
@@ -55,7 +61,7 @@ def suggest(description):
 
 
 def explain(command):
-    response = openai.Completion.create(
+    response = _client().completions.create(
         model="davinci-002",
         prompt=_explain_prompt(command),
         max_tokens=200,
