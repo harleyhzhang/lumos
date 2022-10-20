@@ -69,11 +69,12 @@ def _history(limit):
 
 @click.command()
 @click.argument("input_text", required=False)
-@click.option("-e", "--explain", "explain_mode", is_flag=True)
-@click.option("-r", "--run", is_flag=True)
-@click.option("-H", "--history", "show_history", is_flag=True)
-@click.option("-n", "--limit", default=20)
+@click.option("-e", "--explain", "explain_mode", is_flag=True, help="Explain a command instead of suggesting one.")
+@click.option("-r", "--run", is_flag=True, help="Execute the suggested command without confirmation.")
+@click.option("-H", "--history", "show_history", is_flag=True, help="Show suggestion history.")
+@click.option("-n", "--limit", default=20, help="Number of history entries to show.")
 def cli(input_text, explain_mode, run, show_history, limit):
+    """AI shell command autocomplete powered by davinci-002."""
     if show_history:
         _history(limit)
     elif explain_mode:
