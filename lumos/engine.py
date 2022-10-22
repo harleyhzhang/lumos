@@ -10,7 +10,7 @@ def _client():
     return openai.OpenAI()
 
 
-def _suggest_prompt(description):
+def _suggest_prompt(description: str) -> str:
     return f"""Translate the description into a single shell command.
 
 Description: list all files sorted by size
@@ -32,7 +32,7 @@ Description: {description}
 Command:"""
 
 
-def _explain_prompt(command):
+def _explain_prompt(command: str) -> str:
     return (
         "Explain what this shell command does in plain English.\n\n"
         'Command: find . -name "*.py" -mtime -7\n'
@@ -49,7 +49,7 @@ def _explain_prompt(command):
     )
 
 
-def suggest(description):
+def suggest(description: str) -> str:
     response = _client().completions.create(
         model="davinci-002",
         prompt=_suggest_prompt(description),
@@ -60,7 +60,7 @@ def suggest(description):
     return response.choices[0].text.strip()
 
 
-def explain(command):
+def explain(command: str) -> str:
     response = _client().completions.create(
         model="davinci-002",
         prompt=_explain_prompt(command),
